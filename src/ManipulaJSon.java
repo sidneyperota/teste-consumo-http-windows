@@ -37,8 +37,11 @@ public class ManipulaJSon {
 		
 		lista.add( jsonObjeto );
 		
+		// Converter Lista JSON para o formato String 
 		String sJson = JSONValue.toJSONString(lista); 
 		
+		
+		// Converte a String para o Formato de Lista JSON
 		lista = (List) JSONValue.parse( sJson );
 		
 		jsonObjeto = (JSONObject) lista.get(1);

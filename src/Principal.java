@@ -1,6 +1,9 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
@@ -25,6 +28,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 
 public class Principal {
@@ -35,7 +40,8 @@ public class Principal {
 		
 		HttpClient httpclient = HttpClients.createDefault();
         
-		HttpPost httppost = new HttpPost("http://localhost:8080/teste.php/funcionario/gravar");
+		//HttpPost httppost = new HttpPost("http://localhost:8080/teste.php/funcionario/gravar");
+		HttpPost httppost = new HttpPost("http://www.meuappfinanceiro.com.br/api.php");
 		         
 		try { 
 		    ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
@@ -59,72 +65,82 @@ public class Principal {
 		
 	}
 	
-	
 	public static void requisitar() { 
 		
+		String sCaminho = "http://www.meuappfinanceiro.com.br/api.php";
 		HttpClient httpclient = HttpClients.createDefault();
-		HttpGet httpget = new HttpGet("http://localhost:8080/api.php/estoque/mostrar");
+		HttpGet httpget = new HttpGet( sCaminho );
+		
 		HttpDelete httpDelete = new HttpDelete("http://localhost:8080/api.php"); 
 		HttpPost httpPost = new HttpPost("http://localhost:8080/api.php/funcionarios?cidade=saopaulo&bairro=centro");
 		HttpPut httpPut = new HttpPut("http://localhost:8080/api.php");
 		HttpOptions httpOptions = new HttpOptions("http://localhost:8080/api.php");
 		
-		httpget.addHeader("bairro", "arrozal");
-		httpget.addHeader("bairro", "volta redonda");
-		httpget.addHeader("bairro", "paraty");
 		
 		HttpMessage httpMessage;
 		
-		Header header; 
-		
-		header = httpget.getFirstHeader("bairro");
-		System.out.print(  " - " + header.getValue() );
-		
-		header = httpget.getLastHeader("bairro");
-		System.out.print(  " - " + header.getValue() );
-		
-		httpPost.addHeader("teste", "teste01");
 	
 		try {
 		    // teste dos metodos  
-			HttpResponse response = httpclient.execute( httpPost );
+			HttpResponse response = httpclient.execute( httpget );
 			
-			Header[] cabecalhos = response.getAllHeaders(); 
+		    
 			
-			System.out.println("\n Total de Cabecalhos:" +  cabecalhos.length );
-			
-			System.out.println("Cabecalho:" +  cabecalhos[0] );
-			System.out.println("Cabecalho:" +  cabecalhos[1] );
-			System.out.println("Cabecalho:" +  cabecalhos[2] );
-			System.out.println("Cabecalho:" +  cabecalhos[3] );
-			System.out.println("Cabecalho:" +  cabecalhos[4] );
-			
-				
-	    
-		    StatusLine status = response.getStatusLine();
+			StatusLine status = response.getStatusLine();
 		    
 		    //JOptionPane.showMessageDialog( null, status.getStatusCode() ); 
-		    
 		    
 		    if( response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
 		        HttpEntity entity = response.getEntity();
 		        
-		        //System.out.println("Tamanho: "+entity.getContentLength() );
-		        //System.out.println("Content-type: "+entity.getContentType().getValue() );
-		                   
+          
 		        InputStream in = entity.getContent();             
 		        Scanner scan = new Scanner( in );
 		        
+		        int iSeq = 0;
+		        String sLinha = ""; 
+		        
 		        while( scan.hasNext() ){
-		            System.out.println( scan.nextLine() );
-		        } 
+		            
+		        	iSeq++; 
+		        	
+		        	sLinha = scan.nextLine(); 
+		        	
+		        	if ( ! sLinha.isEmpty() ) { 
+		        	  System.out.println( sLinha );
+		        	}
+		        }
+		        
+		        
+		        List lista = new LinkedList(); 
+		        lista = (List) JSONValue.parse( sLinha );
+		        
+		        JSONObject jsonObjeto;
+		        
+		         		        
+		        for ( int i=0; i < lista.size(); i++ ) { 
+		        
+		        	jsonObjeto = (JSONObject) lista.get(i);
+		        	
+		        	System.out.println(	jsonObjeto.get("id") + " - " + jsonObjeto.get("data") ); 
+		        	
+		        }
+		        	
+		        	
+		          
+		        
+		         
+		        
+		        
+		        
+		        
+		        
+		        
+		        
+		        
+		        
 		  }
     
-		    
-		    //System.out.print( status.toString() ); 
-
-		 
-		    //System.out.print( response.toString() ); 
 		 
 		} catch (ClientProtocolException e) {
 		    e.printStackTrace();
